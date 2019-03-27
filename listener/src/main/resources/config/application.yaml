@@ -1,0 +1,13 @@
+server:
+  port: 9002
+spring:
+  rabbitmq:
+    host: 192.168.5.100
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      direct:
+        acknowledge-mode: manual
+      simple:
+        acknowledge-mode: manual

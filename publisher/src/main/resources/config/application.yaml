@@ -1,0 +1,14 @@
+server:
+  port: 9001
+spring:
+  rabbitmq:
+    host: 192.168.5.100
+    port: 5672
+    username: guest
+    password: guest
+    publisher-confirms: true
+    publisher-returns: true
+    template:
+      #参数意义：true当没有合适的queue直接返回到ReturnCallback
+      #         false没有合适的直接丢弃
+      mandatory: true
