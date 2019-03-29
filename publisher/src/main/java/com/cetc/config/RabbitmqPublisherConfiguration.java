@@ -1,13 +1,21 @@
 package com.cetc.config;
 
+import org.springframework.amqp.core.AcknowledgeMode;
+import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.DirectMessageListenerContainer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import java.text.MessageFormat;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-@Component
+@Configuration
 public class RabbitmqPublisherConfiguration {
 
     @Autowired
@@ -42,5 +50,23 @@ public class RabbitmqPublisherConfiguration {
 
         });
         return rabbitTemplate;
+    }
+
+    @Bean
+    public AsyncRabbitTemplate asyncRabbitTemplate(DirectMessageListenerContainer container) {
+        AsyncRabbitTemplate asyncRabbitTemplate = new AsyncRabbitTemplate(rabbitTemplate, container);
+        return asyncRabbitTemplate;
+    }
+
+    @Bean
+    public DirectMessageListenerContainer directMessageListenerContainer(ConnectionFactory connectionFactory) {
+        DirectMessageListenerContainer container = new DirectMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.setQueueNames("rpc");
+        //这里我改成手动了，但是没有好的方式去获取channel,然后ack.所以我这里使用的自动。
+        container.setAcknowledgeMode(AcknowledgeMode.AUTO);
+        //这里可以使用默认的执行器：SimpleAsyncTaskExecutor（但是，这里不是采用的线程池而是直接new Thread）
+        container.setTaskExecutor(new ThreadPoolExecutor(5, 60, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(3000)));
+        return container;
     }
 }
