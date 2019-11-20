@@ -30,12 +30,12 @@ public class HeadersExchangeConfiguration {
      * @return
      */
     @Bean
-    public Binding binding5() {
+    public Binding binding7() {
         return BindingBuilder.bind(queue7()).to(headersExchange()).where("header").exists();
     }
 
     @Bean
-    public Binding binding6() {
+    public Binding binding8() {
         return BindingBuilder.bind(queue8()).to(headersExchange()).where("header").exists();
     }
 }
